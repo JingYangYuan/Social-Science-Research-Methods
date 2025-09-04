@@ -1,0 +1,318 @@
+\documentclass{beamer}
+\usepackage{ctex, hyperref}
+\usepackage[T1]{fontenc}
+
+% other packages
+\usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
+\usepackage{graphicx,pstricks,listings,stackengine,tikz,array,amssymb,bm}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{graphicx}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{calc}
+\usetikzlibrary{positioning, arrows.meta}
+
+\title{社会科学研究方法}
+\subtitle{研究方法的哲学基础}
+\author{元景阳}
+\institute{南京财经大学金融学院（已毕业）}
+\date{\today}
+\usepackage{kunhuo}
+
+% defs
+\def\cmd#1{\texttt{\color{red}\footnotesize $\backslash$#1}}
+\def\env#1{\texttt{\color{blue}\footnotesize #1}}
+\definecolor{deepblue}{RGB}{0,0,0.5}
+\definecolor{deepred}{RGB}{0.6,0,0}
+\definecolor{deepgreen}{RGB}{0,0.5,0}
+\definecolor{halfgray}{gray}{0.55}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\bfseries\color{deepblue},
+    emphstyle=\ttfamily\color{deepred},    % Custom highlighting style
+    stringstyle=\color{deepgreen},
+    numbers=left,
+    numberstyle=\small\color{halfgray},
+    rulesepcolor=\color{red!20!green!20!blue!20},
+    frame=shadowbox,
+}
+
+\begin{document}
+\kaishu
+
+\frame{\titlepage}
+
+\section{存在论}
+\begin{frame}
+\frametitle{存在论}
+\begin{itemize}
+\item 世界如一枚硬币，既有可测量的金属材质，又有雕刻其上的图案花纹
+\item 想要真正理解世界，在掂量硬币的重量的同时，也要欣赏其花纹与光影
+\item "美"是山水的客观属性，还是你内心的主观感受？
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{客观---现实主义}
+\begin{itemize}
+\item 社会现实是客观存在，独立于个人的意识和认知
+\item 社会现象有其独立的客观特征，可以通过科学方法进行观察、测量和分析
+\item 强调经验主义或实证主义
+\item 认为知识来源于对现实世界的经验观察和数据收集
+\item 追求识别社会现象之间存在可识别的因果关系
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{主观---建构主义}
+\begin{itemize}
+\item 社会现实是通过人类的主观认知和社会互动建构而成
+\item 社会现象的意义和现实是由个体和群体共同赋予和解释
+\item 强调研究者理解人们如何通过互动和交流来建构社会世界
+\item 例如：身份是一种通过个体主观体验及社会互动形成的社会现象
+\end{itemize}
+\end{frame}
+
+\section{科学革命的开端}
+
+\begin{frame}{亚里士多德的"四因说"}
+\begin{enumerate}
+\item 质料因（causa materialis）：构成事物的物质基础
+\item 形式因（causa formalis）：事物所具有的结构、形状或本质特征
+\item 动力因（causa efficiens）：促使事物生成、变化或运动的外在力量
+\item 目的因（causa finalis）：事物存在或运动的目的与功能
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{方法论自然主义}
+\begin{itemize}
+\item 肇始于文艺复兴时期
+\item 科学研究的方法论不涉及到宗教思考
+\item 超自然存在及终极真理仍然由教会掌握
+\item 从仰望神谕转向俯察人间，从依赖经典权威转向依靠观察、实验与理性推理
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{从"为什么"向"如何"的转变}
+\begin{itemize}
+\item 中世纪学者追问"苹果为何落下"------是否符合上帝的旨意或某种终极目的
+\item 科学革命后的思想家们更关注"苹果是如何掉下来的"
+\item 试图通过观察和实验揭示支配自然现象的普遍规律
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{唯理主义与经验主义}
+\begin{block}{经验主义}
+\begin{itemize}
+\item 思想渊源可追溯到中世纪晚期的经院哲学家
+\item 17至18世纪在英国得到系统发展
+\item 强调通过感官经验获得知识
+\end{itemize}
+\end{block}
+
+\begin{block}{理性主义}
+\begin{itemize}
+\item 以笛卡尔为代表
+\item 强调通过先验推理获得知识
+\end{itemize}
+\end{block}
+\end{frame}
+
+\section{社会思潮的产生与认识论的发展}
+\begin{frame}
+\frametitle{霍布斯的《利维坦》}
+\begin{itemize}
+\item 人类因无限欲望陷入持续冲突
+\item 为摆脱混乱，需建立拥有绝对权力的国家
+\item 提出"社会契约"：人们为安全自愿转让权利，形成国家
+\item 国家可通过征服或契约建立
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{洛克的革命性改造}
+\begin{itemize}
+\item 自然状态并非全然"污秽、残酷与短暂"
+\item 存在着"自然法"的约束
+\item 人拥有生命、自由、财产等不可剥夺的"自然权利"
+\item 政府的建立是为了更好地保护这些先在的权利
+\item 当政府违背契约、侵犯权利时，人民有权反抗
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{密尔的归纳因果五法}
+\begin{enumerate}
+\item 求同法：多个不同情境中现象出现的共同因素
+\item 求异法：现象出现与不出现的差异因素
+\item 求同求异联合法：结合前两种方法
+\item 共变法：因素变化与现象变化的关系
+\item 剩余法：剔除已知原因后的剩余部分
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{休谟的因果关系理论}
+\begin{itemize}
+\item 时间先后：原因必须先于结果
+\item 空间邻近：因果事件需在空间上接近
+\item 必然联系：基于反复经验形成的心理习惯
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{孔德的实证主义}
+\begin{block}{人类理智发展的三个阶段}
+\begin{enumerate}
+\item 神学的或虚构的阶段
+\item 形而上学的或抽象的阶段
+\item 实证的或真实的阶段
+\end{enumerate}
+\end{block}
+
+\begin{block}{科学分类}
+数学、天文学、物理学、生物学、社会学
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{马克思的历史唯物主义}
+\begin{itemize}
+\item "哲学家们只是用不同的方式解释世界，而问题在于改变世界"
+\item 社会规律是人类在物质生产实践中历史性生成的产物
+\item 生产力与生产关系的矛盾推动社会革命
+\item 无产阶级的历史使命是在革命中改变世界
+\end{itemize}
+\end{frame}
+
+\section{面向当代的方法论哲学}
+\begin{frame}
+\frametitle{实用主义}
+\begin{itemize}
+\item 19世纪70年代由美国哲学家皮尔斯创立
+\item 经由詹姆士、杜威等人发展
+\item 强调知识和观念的"有用性"
+\item "一个观念，只要我们相信它对我们的生活是有益的，那么它就是'真的'"
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{逻辑实证主义}
+\begin{block}{四个特点}
+\begin{enumerate}
+\item 注重"科学语言的逻辑分析"
+\item 坚持经验主义认识论
+\item 注重归纳方法
+\item 强调科学研究与科学方法在获取知识上的逻辑性与客观性的统一
+\end{enumerate}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{结构主义}
+\begin{itemize}
+\item 首先兴起于语言学领域
+\item 索绪尔的《普通语言学教程》奠定基础
+\item 列维-斯特劳斯将其发展并推广到人文学科
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{结构主义方法论的五个原则}
+\begin{enumerate}
+\item 强调研究对象的整体性
+\item 注重系统内部各要素之间的关系
+\item 对主体的消解
+\item 强调结构的自我调节与自适应
+\item 注重结构的动态性与转换
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{后实证主义}
+\begin{block}{四个关键特征}
+\begin{enumerate}
+\item 注重"经验环境与形而上学的双向互动"
+\item 定性与定量相结合的混合研究方法
+\item 价值中立原则受到挑战
+\item 强调科学知识的"可证伪性"
+\end{enumerate}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{科学研究的哲学发展路径}
+\begin{block}{存在论层面}
+\begin{itemize}
+\item 客观---现实主义：社会现象具有独立于个体意识的客观规律
+\item 主观---建构主义：社会现实由人类认知与互动动态建构
+\end{itemize}
+\end{block}
+
+\begin{block}{认识论层面}
+\begin{itemize}
+\item 经验主义：坚持感官经验为知识源头
+\item 唯理主义：推崇先验理性与逻辑演绎
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{方法论演进}
+\begin{itemize}
+\item 从方法论自然主义到实证主义
+\item 经验验证与逻辑分析的统一标准
+\item 结构主义与后实证主义突破主客观二元对立
+\item 强调理论可证伪性、混合研究方法及社会结构的动态性
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{总结}
+\begin{itemize}
+\item 研究方法的哲学演进反映了社会思潮的发展与分野
+\item 现代社会科学在技术化与人文关怀间寻求平衡
+\item 既需借助定量工具捕捉规律性
+\item 亦需通过定性反思理解意义网络
+\item 在实用主义导向的多元方法论融合中回应复杂社会现象
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{参考文献}
+\small
+\begin{thebibliography}{99}
+	\bibitem{1} 
+	王正绪，《厘清社会科学研究范式的基本差别》，\href{https://www.cssn.cn/skgz/bwyc/202409/t20240913_5777429.shtml}{中国社会科学网}
+	
+	\bibitem{2}
+	包刚升，\href{https://www.bilibili.com/video/BV1S2HsePERE}{哔哩哔哩：国家起源于人与人的战争状态？如何解读霍布斯的《利维坦》？}
+	
+	\bibitem{3}
+	哈耶克，《自由秩序原理》，三联书店
+	
+	\bibitem{4}
+	Mill, John Stuart条目，\href{https://iep.utm.edu/milljs/}{Internet Encyclopedia of Philosophy}
+	
+	\bibitem{5}
+	Hume, David条目，\href{https://iep.utm.edu/hume/}{Internet Encyclopedia of Philosophy}
+	
+	\bibitem{6}
+	《实证哲学教程》条目，\href{https://www.zgbk.com/ecph/words?SiteID=1&ID=399321}{中国大百科全书网}
+	
+	\bibitem{7}
+	马克思，《关于费尔巴哈的提纲》，\href{https://www.marxists.org/chinese/marx/marxist.org-chinese-marx-1845.htm}{中文马克思主义文库}
+	
+	\bibitem{8}
+	马克思，《<政治经济学批判>序言》，\href{https://www.marxists.org/chinese/marx/06.htm}{中文马克思主义文库}
+	
+	\bibitem{9}
+	杨立华 \ 等，《政治学与公共管理研究方法基础》，北京大学出版社
+\end{thebibliography}
+\end{frame}
+
+\end{document}

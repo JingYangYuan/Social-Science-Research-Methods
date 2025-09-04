@@ -1,0 +1,3 @@
+import latex2markdown
+
+latex2markdown chapter2.tex -o output.md

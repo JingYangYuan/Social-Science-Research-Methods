@@ -1,0 +1,73 @@
+\documentclass[lang=cn,newtx,scheme=chinese]{elegantbook}
+
+% ------------------------------------------------
+% 基本编码与字体设置
+% ------------------------------------------------
+\usepackage{ctex}
+\usepackage{anyfontsize}
+\renewcommand{\normalsize}{\fontsize{12pt}{15pt}\selectfont}  % 字体大小和间距设置
+\setlength{\parskip}{0.5em}  % 段落间距设置
+\usepackage{fancyvrb}
+\fvset{fontsize=\small} % 代码字体大小设置
+
+% ------------------------------------------------
+% 表格与绘图宏包
+% ------------------------------------------------
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{subcaption}
+\usepackage{babel}
+
+% ------------------------------------------------
+% 颜色与代码展示
+% ------------------------------------------------
+\usepackage{xcolor}
+\usepackage{listings}
+\newcommand{\ccr}[1]{\makecell{{\color{#1}\rule{1cm}{1cm}}}}
+\definecolor{customcolor}{RGB}{135, 206, 235}
+\colorlet{coverlinecolor}{customcolor}
+
+% ------------------------------------------------
+% 超链接设置
+% ------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	urlcolor=black
+}
+
+% ------------------------------------------------
+% 文档信息设置
+% ------------------------------------------------
+\title{社会科学研究方法}
+\subtitle{因果推断}
+\author{元景阳}
+\date{2025年8月}
+\version{1.0}
+\setcounter{tocdepth}{3}
+\logo{logo.jpg}
+\cover{cover.png}
+
+% ------------------------------------------------
+% 正文部分
+% ------------------------------------------------
+\begin{document}
+
+\maketitle
+\frontmatter
+\tableofcontents
+
+\mainmatter
+\include{chapter/preface}
+\include{chapter/chapter1}
+\include{chapter/chapter2}
+\include{chapter/chapter3}
+\include{chapter/chapter4}
+\include{chapter/chapter5}
+
+\end{document}
