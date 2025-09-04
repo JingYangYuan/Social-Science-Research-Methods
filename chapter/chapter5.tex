@@ -1597,7 +1597,113 @@ Y_i^* & \text{if } Y_i^* > 0 \\
 \end{equation}
 使用OLS估计此类数据会导致系数估计有偏，而Tobit模型通过最大似然估计法可以得到一致的估计量。
 
-为节省篇幅，我们这里只给出Stata官方文档。
+为节省篇幅，我们这里只给出了Stata官方文档中的一些操作方法，更多内容请参考Stata官方文档。
+
+\begin{itemize}
+	\item \href{https://www.stata.com/manuals13/rpoisson.pdf}{泊松回归}
+	\item \href{https://www.stata.com/manuals13/rnbreg.pdf}{负二项回归}
+	\item \href{https://www.stata.com/manuals14/rtobit.pdf}{Tobit回归}
+\end{itemize}
+
+\begin{tcolorbox}[title=在 Stata 中估计 Poisson 模型并计算边际效应, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
+quietly webuse dollhill3, clear
+* 使用 poisson 回归来处理过度分散
+poisson deaths smokes i.agecat, exposure(pyears) irr
+estat gof // 假设结果显著提示过度分散
+* 使用负二项回归来处理过度分散（不太对）
+nbreg deaths smokes i.agecat, exposure(pyears) irr
+\end{lstlisting}
+\vspace{-2em}
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+------------------------------------------------------------------------------
+      deaths |        IRR   Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      smokes |   1.425519   .1530638     3.30   0.001     1.154984    1.759421
+             |
+      agecat |
+      45–54  |   4.410584   .8605197     7.61   0.000     3.009011    6.464997
+      55–64  |    13.8392   2.542638    14.30   0.000     9.654328    19.83809
+      65–74  |   28.51678   5.269878    18.13   0.000     19.85177    40.96395
+      75–84  |   40.45121   7.775511    19.25   0.000     27.75326    58.95885
+             |
+       _cons |   .0003636   .0000697   -41.30   0.000     .0002497    .0005296
+  ln(pyears) |          1  (exposure)
+------------------------------------------------------------------------------
+Note: _cons estimates baseline incidence rate.
+
+         Deviance goodness-of-fit =  12.13237
+         Prob > chi2(4)           =    0.0164
+
+         Pearson goodness-of-fit  =  11.15533
+         Prob > chi2(4)           =    0.0249
+
+------------------------------------------------------------------------------
+      deaths |        IRR   Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      smokes |   1.425519   .1530638     3.30   0.001     1.154984    1.759422
+             |
+      agecat |
+      45–54  |   4.410584   .8605198     7.61   0.000     3.009011    6.464998
+      55–64  |    13.8392   2.542639    14.30   0.000     9.654327    19.83809
+      65–74  |   28.51678   5.269879    18.13   0.000     19.85177    40.96396
+      75–84  |    40.4512   7.775512    19.25   0.000     27.75325    58.95885
+             |
+       _cons |   .0003636   .0000697   -41.30   0.000     .0002497    .0005296
+  ln(pyears) |          1  (exposure)
+-------------+----------------------------------------------------------------
+    /lnalpha |  -18.68104   732.0311                     -1453.436    1416.074
+-------------+----------------------------------------------------------------
+       alpha |   7.71e-09   5.64e-06                             0           .
+------------------------------------------------------------------------------
+
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=在 Stata 中估计 Tobit 模型并计算边际效应, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
+quietly webuse mroz87, clear
+tab whrs75 if whr < 50
+tobit whrs75 nwinc wedyrs wexper c.wexper#c.wexper wifeage kl6 k618, ll(0)
+\end{lstlisting}
+\vspace{-2em}
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+     Wife's |
+   hours of |
+    work in |
+       1975 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        325       98.19       98.19
+         12 |          1        0.30       98.49
+         15 |          2        0.60       99.09
+         30 |          1        0.30       99.40
+         44 |          1        0.30       99.70
+         48 |          1        0.30      100.00
+------------+-----------------------------------
+      Total |        331      100.00
+
+
+-----------------------------------------------------------------------------------
+           whrs75 | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+------------------+----------------------------------------------------------------
+            nwinc |  -8.814227   4.459089    -1.98   0.048    -17.56808   -.0603708
+           wedyrs |   80.64541   21.58318     3.74   0.000     38.27441    123.0164
+           wexper |    131.564   17.27935     7.61   0.000     97.64211     165.486
+                  |
+c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086455
+                  |
+          wifeage |  -54.40491   7.418483    -7.33   0.000     -68.9685   -39.84133
+              kl6 |  -894.0202   111.8777    -7.99   0.000    -1113.653   -674.3875
+             k618 |  -16.21805    38.6413    -0.42   0.675    -92.07668    59.64057
+            _cons |   965.3068   446.4351     2.16   0.031     88.88827    1841.725
+------------------+----------------------------------------------------------------
+     var(e.whrs75)|    1258927   93304.48                       1088458     1456093
+-----------------------------------------------------------------------------------
+
+\end{Verbatim}
+\end{tcolorbox}
 
 \subsection{时间序列分析}
 时间序列数据是按时间顺序排列的一系列观测值。与截面数据不同，时间序列数据的观测值之间通常存在依赖关系，即当前值会受到过去值的影响。这种\textbf{序列相关性（Serial Correlation）}或\textbf{自相关性（Autocorrelation）}是时间序列分析的核心。
