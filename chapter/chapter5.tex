@@ -1706,72 +1706,133 @@ c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086
 \end{Verbatim}
 \end{tcolorbox}
 
-这样，我们基本完成了误差项和因变量与标准状态下分布不同的回归估计介绍，下面我们进入一个有趣的、也是金融学领域中很深入的话题——时间序列分析。
+这样，我们基本完成了误差项和因变量与标准OLS回归状态下分布不同的回归估计介绍，下面我们进入一个有趣、也是在金融学领域中很深入的话题——时间序列分析。
 
 \subsection{时间序列分析}
+
 时间序列数据是按时间顺序排列的一系列观测值。与截面数据不同，时间序列数据的观测值之间通常存在依赖关系，即当前值会受到过去值的影响。这种\textbf{序列相关性（Serial Correlation）}或\textbf{自相关性（Autocorrelation）}是时间序列分析的核心。
 
-\paragraph*{平稳性与单位根}
+在政治学和社会学的历史制度主义领域之中，时间序列的这种历时相关性有一个更为深刻且常见的理论表达——\textbf{路径依赖}。这一概念强调，历史的偶然事件或早期选择会通过自我强化机制（如规模报酬递增、协调效应等），将后续的制度变迁或政策发展锁定在某一个特定的轨道上，即使存在更优的替代方案。
+
+从统计学的角度看，路径依赖正是时间序列数据中序列相关性的深刻体现。一个具有强自相关的过程，意味着其当前状态在很大程度上由其过去状态所决定，这与“历史塑造未来”的理念不谋而合。特别地，当一个时间序列存在\textbf{单位根}时，它表现出一种极端的路径依赖：历史上的任何一次冲击（shock）所造成的影响都是永久性的，不会随着时间的推移而消散。这为理解政治制度（如选举制度的演变）或长期政策（如福利国家的形成）的“锁定效应”（与“关键节点”提供了有力的量化分析工具。因此，检验时间序列的平稳性，实际上也是在探究我们所研究的政治或社会过程在多大程度上受到其自身历史的束缚。
+
+为了理解时间序列，我们通常从基础的单变量时间序列模型开始。
+
+\textbf{自回归模型 (AR)}
+上述用于检验单位根的一阶自回归模型 AR(1) 是更广泛的\textbf{自回归模型 (Autoregressive Model, AR)} 的一个特例。一个 $p$ 阶的自回归模型 AR($p$) 表示，序列的当前值是其过去 $p$ 个值的线性组合加上一个随机扰动项。其一般形式为：
+\begin{equation}
+	Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \varepsilon_t
+\end{equation}
+其中 $c$ 是常数项，$\phi_1, \dots, \phi_p$ 是自回归系数，$\varepsilon_t$ 是白噪声。AR模型捕捉了序列自身的“记忆”或持续性。在AR(1)模型 $Y_t = \rho Y_{t-1} + \varepsilon_t$ 中，如果 $|\rho|<1$，序列是平稳的；如果 $\rho=1$，序列就含有单位根，是一个随机游走过程，其方差随时间无限增大。我们可以通过\textbf{增广迪基-福勒检验（Augmented Dickey-Fuller, ADF）}来检验序列中是否存在单位根。
+
+\textbf{移动平均模型 (MA)}
+
+与AR模型不同，\textbf{移动平均模型 (Moving Average Model, MA)} 认为序列的当前值受到当前和过去的随机扰动项（或称“冲击”）的影响。一个 $q$ 阶的移动平均模型 MA($q$) 的形式为：
+\begin{equation}
+	Y_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \dots + \theta_q \varepsilon_{t-q}
+\end{equation}
+其中 $\mu$ 是序列的均值，$\theta_1, \dots, \theta_q$ 是移动平均系数。MA模型擅长刻画那些在受到一次冲击后，影响会持续几期然后完全消失的事件。例如，一次性的政策公告可能在短期内影响公众情绪，但其效果不会无限持续。
+
+\textbf{ARMA 与 ARIMA 模型}
+
+在实际应用中，许多时间序列同时表现出AR和MA过程的特征。因此，可以将两者结合起来，形成\textbf{自回归移动平均模型 (Autoregressive Moving Average Model, ARMA($p,q$))}：
+\begin{equation}
+	Y_t = c + \phi_1 Y_{t-1} + \dots + \phi_p Y_{t-p} + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q}
+\end{equation}
+然而，AR、MA和ARMA模型都要求时间序列是平稳的。对于含有单位根的非平稳序列，经典的\textbf{Box-Jenkins方法}要求先对其进行\textbf{差分（Differencing）}以实现平稳。如果一个序列经过 $d$ 次差分后变为平稳的ARMA($p,q$)过程，则称原序列服从\textbf{自回归差分移动平均模型 (Autoregressive Integrated Moving Average Model, ARIMA($p,d,q$))}。这里的 $d$ 就是“整合”的阶数（Integrated order），代表了序列中单位根的个数。
+
+\textbf{平稳性与单位根}
+
 时间序列分析的一个基本概念是\textbf{平稳性（Stationarity）}。一个弱平稳的时间序列，其均值、方差和任意滞后阶的自协方差不随时间变化。非平稳序列（如带有趋势的GDP）直接用于回归分析，可能导致\textbf{伪回归（Spurious Regression）}，即两个不相关的序列可能表现出很高的 $R^2$ 和显著的t统计量。
 
-一个常见的非平稳来源是\textbf{单位根（Unit Root）}。一个简单的一阶自回归模型 AR(1) 为
-\[
-Y_t = \rho Y_{t-1} + \varepsilon_t
-\]
+一个常见的非平稳来源是\textbf{单位根（Unit Root）}，对一个简单的一阶自回归模型 AR(1) 来说：
+
+\begin{equation}
+	Y_t = \rho Y_{t-1} + \varepsilon_t
+\end{equation}
+
 如果 $|\rho|<1$，序列是平稳的；如果 $\rho=1$，序列就含有单位根，是一个随机游走过程，其方差随时间无限增大。我们可以通过\textbf{增广迪基-福勒检验（Augmented Dickey-Fuller, ADF）}来检验序列中是否存在单位根。
 
-\begin{tcolorbox}[title=在 Stata 中进行单位根检验, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
-\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
-使用Stata自带的美国宏观经济数据
-webuse sp500
-将数据设置为时间序列格式
-tsset date, daily
-对S&P 500指数的对数进行ADF检验
-原假设H0：序列存在单位根 (非平稳)
-dfuller ln_sp500, trend lags(4)
-display "检验统计量 " %4.2f r(Zt) ", 临界值(5%) " %4.2f r(cv5)
-display "p-value > 0.05，不能拒绝原假设，认为ln_sp500是非平稳的"
+\textbf{协整与误差修正模型}
 
-对一阶差分后的序列（近似于收益率）进行检验
-gen D_ln_sp500 = D.ln_sp500
-dfuller D_ln_sp500, lags(4)
-display "检验统计量 " %4.2f r(Zt) ", 临界值(5%) " %4.2f r(cv5)
-display "p-value < 0.05，拒绝原假设，认为一阶差分后序列是平稳的"
-\end{lstlisting}
-\vspace{-2em}
-\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
-. dfuller ln_sp500, trend lags(4)
-Augmented Dickey-Fuller test for unit root         Number of obs   =      250
----------- Interpolated Dickey-Fuller ---------
-Test         1% Critical       5% Critical      10% Critical
-Statistic           Value             Value             Value
-Z(t)             -2.288            -4.001            -3.431            -3.138
-MacKinnon approximate p-value for Z(t) = 0.4431
-
-检验统计量 -2.29, 临界值(5%) -3.43
-p-value > 0.05，不能拒绝原假设，认为ln_sp500是非平稳的
-
-. dfuller D_ln_sp500, lags(4)
-Augmented Dickey-Fuller test for unit root         Number of obs   =      249
----------- Interpolated Dickey-Fuller ---------
-Test         1% Critical       5% Critical      10% Critical
-Statistic           Value             Value             Value
-Z(t)            -10.421            -3.456            -2.872            -2.572
-MacKinnon approximate p-value for Z(t) = 0.0000
-
-检验统计量 -10.42, 临界值(5%) -2.87
-p-value < 0.05，拒绝原假设，认为一阶差分后序列是平稳的
-\end{Verbatim}
-\end{tcolorbox}
-
-\paragraph*{协整与误差修正模型}
 如果两个或多个非平稳序列（通常是I(1)序列，即一阶差分后平稳）的某个线性组合是平稳的，那么这些序列之间存在\textbf{协整（Cointegration）}关系。这表明它们之间存在一个稳定的长期均衡关系。例如，收入和消费都是非平稳的，但它们之间存在长期均衡。
 
 当协整关系存在时，我们可以使用\textbf{误差修正模型（Error Correction Model, ECM）}来同时捕捉变量间的长期均衡和短期动态调整。ECM的形式为：
+
 \begin{equation}
 \Delta Y_t = \alpha_0 + \alpha_1 (Y_{t-1} - \beta_1 - \beta_2 X_{t-1}) + \gamma_1 \Delta X_t + \varepsilon_t
 \end{equation}
+
 其中，$(Y_{t-1} - \beta_1 - \beta_2 X_{t-1})$ 是上一期的\textbf{误差修正项}，代表对长期均衡的偏离。系数 $\alpha_1$（应为负值）表示每期调整回均衡状态的速度。
+
+\textbf{向量自回归模型 (VAR)}
+
+当分析多个时间序列变量之间的相互动态关系时，单方程模型就显得力不从心。向量自回归（Vector Autoregression, VAR）模型是单变量自回归（AR）模型向多元变量系统的推广。在VAR模型中，系统内的每一个内生变量都作为其自身以及所有其他内生变量的滞后值的函数来建模，从而捕捉了变量间复杂的动态联系。
+
+对于一个一般的 $k$ 变量 VAR($p$) 模型，其展开的方程组形式如下。系统中的第1个、第2个直到第 $k$ 个方程分别为：
+
+\begin{equation}
+\begin{aligned}
+y_{1,t} = c_1 &+ \left( \phi_{11}^{(1)} y_{1,t-1} + \phi_{12}^{(1)} y_{2,t-1} + \dots + \phi_{1k}^{(1)} y_{k,t-1} \right) \\
+              &+ \left( \phi_{11}^{(2)} y_{1,t-2} + \phi_{12}^{(2)} y_{2,t-2} + \dots + \phi_{1k}^{(2)} y_{k,t-2} \right) \\
+              &+ \dots \\
+              &+ \left( \phi_{11}^{(p)} y_{1,t-p} + \phi_{12}^{(p)} y_{2,t-p} + \dots + \phi_{1k}^{(p)} y_{k,t-p} \right) \\
+              &+ \varepsilon_{1,t} \\
+y_{2,t} = c_2 &+ \left( \phi_{21}^{(1)} y_{1,t-1} + \phi_{22}^{(1)} y_{2,t-1} + \dots + \phi_{2k}^{(1)} y_{k,t-1} \right) \\
+              &+ \dots \\
+              &+ \left( \phi_{21}^{(p)} y_{1,t-p} + \phi_{22}^{(p)} y_{2,t-p} + \dots + \phi_{2k}^{(p)} y_{k,t-p} \right) \\
+              &+ \varepsilon_{2,t} \\
+\vdots \quad &= \quad \vdots \\
+y_{k,t} = c_k &+ \left( \phi_{k1}^{(1)} y_{1,t-1} + \phi_{k2}^{(1)} y_{2,t-1} + \dots + \phi_{kk}^{(1)} y_{k,t-1} \right) \\
+              &+ \dots \\
+              &+ \left( \phi_{k1}^{(p)} y_{1,t-p} + \phi_{k2}^{(p)} y_{2,t-p} + \dots + \phi_{kk}^{(p)} y_{k,t-p} \right) \\
+              &+ \varepsilon_{k,t}
+\end{aligned}
+\end{equation}
+
+其中，系数 $\phi_{ij}^{(l)}$ 的含义是：变量 $j$ 的第 $l$ 期滞后值对变量 $i$ 当前值的影响。其数学形式可以简化为：
+
+\begin{equation}
+\mathbf{Y}_t = \mathbf{c} + \mathbf{\Phi}_1 \mathbf{Y}_{t-1} + \mathbf{\Phi}_2 \mathbf{Y}_{t-2} + \dots + \mathbf{\Phi}_p \mathbf{Y}_{t-p} + \boldsymbol{\varepsilon}_t
+\end{equation}
+
+其中：
+\begin{itemize}
+    \item $\mathbf{Y}_t$ 是一个 $k \times 1$ 的内生变量向量。
+    \item $\mathbf{c}$ 是一个 $k \times 1$ 的常数项（截距）向量。
+    \item $\mathbf{\Phi}_i$ ($i=1, \dots, p$) 是 $k \times k$ 的待估参数矩阵，反映了变量滞后项对当前值的影响。
+    \item $\boldsymbol{\varepsilon}_t$ 是一个 $k \times 1$ 的白噪声扰动向量，其协方差矩阵为 $\mathbf{\Sigma}$。
+\end{itemize}
+
+VAR模型的主要优点在于它不要求研究者对变量间的关系做出过多的先验理论假设，而是让数据自身“说话”。VAR模型常用于预测，以及通过\textbf{格兰杰因果检验（Granger Causality Test）}、\textbf{脉冲响应函数（Impulse Response Functions, IRF）}和\textbf{方差分解（Variance Decomposition）}来分析变量间的动态冲击和影响。需要注意的是，时间序列分析中的因果仍旧是传统统计学意义上的因果，只是由于历时性的缘故，满足了休谟推论中的前两点而冠名“因果”，我们仍需要谨慎对待这种格兰杰因果。
+
+\textbf{向量误差修正模型 (VECM)}
+
+VAR模型的一个前提是所使用的变量序列必须是平稳的。如果变量是非平稳的（例如 I(1)），通常需要对其进行差分处理。然而，如果这些非平稳变量之间存在协整关系，对它们进行差分会导致长期均衡信息的丢失。
+
+向量误差修正模型（Vector Error Correction Model, VECM）正是为了解决这个问题而设计的。VECM是施加了协整约束的VAR模型，它既能刻画变量间的短期动态关系，又能体现它们的长期均衡约束。任何一个协整系统都可以表达成VECM的形式。
+
+一个VAR($p$)模型可以被重新表述为如下的VECM形式：
+\begin{equation}
+\Delta \mathbf{Y}_t = \mathbf{\Pi} \mathbf{Y}_{t-1} + \sum_{i=1}^{p-1} \mathbf{\Gamma}_i \Delta \mathbf{Y}_{t-i} + \mathbf{c} + \boldsymbol{\varepsilon}_t
+\end{equation}
+
+其中 $\mathbf{\Gamma}_i = -(\mathbf{\Phi}_{i+1} + \dots + \mathbf{\Phi}_p)$ 捕捉短期动态效应，而关键在于矩阵 $\mathbf{\Pi} = -(\mathbf{I} - \sum_{i=1}^p \mathbf{\Phi}_i)$。这个矩阵 $\mathbf{\Pi}$ 包含了关于变量间长期关系至关重要的信息。
+\begin{itemize}
+    \item 矩阵 $\mathbf{\Pi}$ 的秩 $r$ 决定了系统中协整关系的个数。
+    \begin{itemize}
+        \item 如果 $r=0$，表明没有协整关系，模型退化为标准的差分VAR模型。
+        \item 如果 $r=k$（满秩），表明所有变量本身都是平稳的，应建立水平VAR模型。
+        \item 如果 $0 < r < k$，则存在 $r$ 个协整关系。
+    \end{itemize}
+    \item 当 $0 < r < k$ 时，矩阵 $\mathbf{\Pi}$ 可以分解为 $\mathbf{\Pi} = \boldsymbol{\alpha}\boldsymbol{\beta}'$，其中 $\boldsymbol{\alpha}$ 和 $\boldsymbol{\beta}$ 都是 $k \times r$ 维的矩阵。
+    \begin{itemize}
+        \item $\boldsymbol{\beta}$ 是\textbf{协整向量矩阵}，$\boldsymbol{\beta}' \mathbf{Y}_{t-1}$ 代表了 $r$ 个长期均衡关系。
+        \item $\boldsymbol{\alpha}$ 是\textbf{调整系数矩阵}（或称载荷矩阵），它衡量了当系统偏离长期均衡时，各个变量 $\Delta \mathbf{Y}_t$ 将以多快的速度向均衡状态调整。
+    \end{itemize}
+\end{itemize}
+
+在实证分析中，通常使用\textbf{约翰森协整检验（Johansen Cointegration Test）}来确定协整关系的个数 $r$，进而估计VECM模型，并按照VAR模型的流程继续下去，唯一不同的在于格兰杰因果检验中由于不存在单个变量而无法进行。
 
 \subsection{空间计量经济学}
 空间计量经济学处理的是截面或面板数据中，观测单元在地理空间上的相互依赖性。托布勒的地理学第一定律指出：“任何事物都与其他事物相关，但近处的事物比远处的事物更相关。”这种\textbf{空间依赖性（Spatial Dependence）}或\textbf{空间自相关（Spatial Autocorrelation）}违反了OLS观测独立的假定，会导致估计量有偏或无效。
