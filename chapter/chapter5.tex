@@ -1595,6 +1595,7 @@ Y_i^* & \text{if } Y_i^* > 0 \\
 0 & \text{if } Y_i^* \leq 0
 \end{cases}
 \end{equation}
+
 使用OLS估计此类数据会导致系数估计有偏，而Tobit模型通过最大似然估计法可以得到一致的估计量。
 
 为节省篇幅，我们这里只给出了Stata官方文档中的一些操作方法，更多内容请参考Stata官方文档。
@@ -1605,7 +1606,7 @@ Y_i^* & \text{if } Y_i^* > 0 \\
 	\item \href{https://www.stata.com/manuals14/rtobit.pdf}{Tobit回归}
 \end{itemize}
 
-\begin{tcolorbox}[title=在 Stata 中估计 Poisson 模型并计算边际效应, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{tcolorbox}[title=在 Stata 中估计 Poisson 模型和负二项模型, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
 \begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
 quietly webuse dollhill3, clear
 * 使用 poisson 回归来处理过度分散
@@ -1661,7 +1662,7 @@ Note: _cons estimates baseline incidence rate.
 \end{Verbatim}
 \end{tcolorbox}
 
-\begin{tcolorbox}[title=在 Stata 中估计 Tobit 模型并计算边际效应, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{tcolorbox}[title=在 Stata 中估计 Tobit 模型, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
 \begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
 quietly webuse mroz87, clear
 tab whrs75 if whr < 50
