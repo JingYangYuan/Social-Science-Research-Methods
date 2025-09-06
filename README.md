@@ -6,4 +6,4 @@
 
 本书没有版权（都是抄的别人的，很不好意思了），使用tex模板elegantbook编译，欢迎下载tex代码自行修改，能给我提意见最好了（悄悄告诉你们，book格式的tex可以很方便地改成beamer格式，偷懒不做PPT就这样干吧！）
 
-直接下载pdf链接：https://github.com/JingYangYuan/Social-Science-Research-Methods/raw/main/%E7%A4%BE%E4%BC%9A%E7%A7%91%E5%AD%A6%E7%A0%94%E7%A9%B6%E6%96%B9%E6%B3%95.pdf
+直接下载pdf链接：https://github.com/JingYangYuan/Social-Science-Research-Methods/raw/main/社会科学研究方法.pdf
