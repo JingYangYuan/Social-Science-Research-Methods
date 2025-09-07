@@ -1744,7 +1744,7 @@ c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086
 
 \textbf{选择AR、MA还是ARMA模型}
 
-我们通过画自相关和偏自相关系数图来确定是AR还是MA模型，如果ac拖尾，pac截尾，那么是AR模型，再看这个图是几期后截尾的，如第一期时为0.8，第二阶突然掉到0附近，且再没恢复，那么就是一阶的；反之则为MA模型，阶数判断方法同理。
+我们通过画自相关和偏自相关系数图来确定是AR还是MA模型，如果ac拖尾，pac截尾，那么是AR模型，再看这个图是几期后截尾的，如第一期时为0.8，第二阶突然掉到0附近，且再没恢复，那么就是一阶的；反之则为MA模型，阶数判断方法同理。图\ref{fig:acf_pac}展示了一个AR(1)模型的自相关和偏自相关系数图。
 
 ARMA(p，q)也是一个道理，只不过具体的定阶用的是信息准则，画图时候可以发现两个都是拖尾时候就适合用ARMA模型了。
 
@@ -1875,8 +1875,8 @@ forvalues i = 0/12 {
     matrix ic[`=`i'+1', 1] = `i'
     matrix ic[`=`i'+1', 2] = el(s, 1, 5)
     matrix ic[`=`i'+1', 3] = el(s, 1, 6)
+	matrix colnames ic = lag AIC BIC
 }
-matrix colnames ic = lag AIC BIC
 local min_aic_row = 1
 local min_bic_row = 1
 local min_aic = ic[1,2]
@@ -1891,6 +1891,11 @@ forvalues i = 1/13 {
         local min_bic_row = `i'
     }
 }
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=在 Stata 中应用单变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
 matrix ic_display = ic
 local aic_lag = ic[`min_aic_row',1]
 local bic_lag = ic[`min_bic_row',1]
@@ -1900,11 +1905,6 @@ di "BIC最优滞后阶数: " `bic_lag'
 dfuller le, lags(1) trend // ADF检验通过
 gen dle = d.le // 也可以差分试试
 dfuller dle, lags(1) trend // 通过
-\end{lstlisting}
-\end{tcolorbox}
-
-\begin{tcolorbox}[title=在 Stata 中应用单变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
-\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
 arima le, arima(1,0,1) // ARIMA建模（不差分）
 estat ic //判断模型间接性的信息准则
 tsappend, add(10)  // 添加10年
@@ -1921,9 +1921,41 @@ legend(label(1 "实际值") label(2 "预测值")) ytitle("预期寿命（岁）"
 \vspace{-2em}
 \begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
 
-111
+\color{red}* 自相关和偏自相关图在框外
+----------------------------------------------
+             |       lag        AIC        BIC 
+-------------+--------------------------------
+          r1 |         0   411.0785   416.0332 
+          r2 |         1   397.0076   404.4396 
+………………………………………………………………
+----------------------------------------------
+
+. di "AIC最优滞后阶数: " `aic_lag'
+AIC最优滞后阶数: 1
+
+. di "BIC最优滞后阶数: " `bic_lag'
+BIC最优滞后阶数: 1
+
+                                       Dickey–Fuller
+                   Test      -------- critical value ---------
+              statistic           1%           5%          10%
+--------------------------------------------------------------
+ Z(t)            -3.452       -4.044       -3.452       -3.151
+--------------------------------------------------------------
+
+
 \end{Verbatim}
 \end{tcolorbox}
+
+\begin{figure}[htbp]
+    \centering
+    \fbox{\begin{tabular}{cc}
+        \includegraphics[width=0.45\textwidth]{image/acf.pdf} &
+        \includegraphics[width=0.45\textwidth]{image/pac.pdf}
+    \end{tabular}}
+    \caption{自相关图（左）和偏自相关图（右）}
+    \label{fig:acf_pac}
+\end{figure}
 
 \begin{tcolorbox}[title=在 Stata 中应用多变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
 \begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
