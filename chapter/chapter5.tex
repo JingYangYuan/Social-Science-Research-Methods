@@ -1719,6 +1719,7 @@ c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086
 为了理解时间序列，我们通常从基础的单变量时间序列模型开始。
 
 \textbf{自回归模型 (AR)}
+
 上述用于检验单位根的一阶自回归模型 AR(1) 是更广泛的\textbf{自回归模型 (Autoregressive Model, AR)} 的一个特例。一个 $p$ 阶的自回归模型 AR($p$) 表示，序列的当前值是其过去 $p$ 个值的线性组合加上一个随机扰动项。其一般形式为：
 \begin{equation}
 	Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \varepsilon_t
@@ -1741,6 +1742,12 @@ c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086
 \end{equation}
 然而，AR、MA和ARMA模型都要求时间序列是平稳的。对于含有单位根的非平稳序列，经典的\textbf{Box-Jenkins方法}要求先对其进行\textbf{差分（Differencing）}以实现平稳。如果一个序列经过 $d$ 次差分后变为平稳的ARMA($p,q$)过程，则称原序列服从\textbf{自回归差分移动平均模型 (Autoregressive Integrated Moving Average Model, ARIMA($p,d,q$))}。这里的 $d$ 就是“整合”的阶数（Integrated order），代表了序列中单位根的个数。
 
+\textbf{选择AR、MA还是ARMA模型}
+
+我们通过画自相关和偏自相关系数图来确定是AR还是MA模型，如果ac拖尾，pac截尾，那么是AR模型，再看这个图是几期后截尾的，如第一期时为0.8，第二阶突然掉到0附近，且再没恢复，那么就是一阶的；反之则为MA模型，阶数判断方法同理。
+
+ARMA(p，q)也是一个道理，只不过具体的定阶用的是信息准则，画图时候可以发现两个都是拖尾时候就适合用ARMA模型了。
+
 \textbf{平稳性与单位根}
 
 时间序列分析的一个基本概念是\textbf{平稳性（Stationarity）}。一个弱平稳的时间序列，其均值、方差和任意滞后阶的自协方差不随时间变化。非平稳序列（如带有趋势的GDP）直接用于回归分析，可能导致\textbf{伪回归（Spurious Regression）}，即两个不相关的序列可能表现出很高的 $R^2$ 和显著的t统计量。
@@ -1752,6 +1759,14 @@ c.wexper#c.wexper |  -1.864153   .5376606    -3.47   0.001    -2.919661   -.8086
 \end{equation}
 
 如果 $|\rho|<1$，序列是平稳的；如果 $\rho=1$，序列就含有单位根，是一个随机游走过程，其方差随时间无限增大。我们可以通过\textbf{增广迪基-福勒检验（Augmented Dickey-Fuller, ADF）}来检验序列中是否存在单位根。
+
+\href{https://doi.org/10.1080/07350015.1989.10509723}{Schwert(1989)}
+建议最大滞后阶数为：  
+\begin{equation}
+  \mu = \left\lfloor 12 \cdot \left( \frac{T}{100} \right)^{1/4} \right\rfloor  
+\end{equation}
+
+在此基础上，我们继续使用信息准则法进行判断，所谓信息准则，可以粗略理解为模型准确性与复杂度之间关系的度量，越复杂的模型准确性越高，但单个变量参数值的方差可能较大，因此引入信息准则来平衡滞后期数与准确性之间的矛盾。
 
 \textbf{协整与误差修正模型}
 
@@ -1834,7 +1849,102 @@ VAR模型的一个前提是所使用的变量序列必须是平稳的。如果�
 
 在实证分析中，通常使用\textbf{约翰森协整检验（Johansen Cointegration Test）}来确定协整关系的个数 $r$，进而估计VECM模型，并按照VAR模型的流程继续下去，唯一不同的在于格兰杰因果检验中由于不存在单个变量而无法进行。
 
-我们通过一个案例来进行学习，案例是中国的宏观经济数据。
+我们通过一个案例来进行学习，案例是美国的宏观经济数据库；这里推荐一个下载宏观经济数据的网站：\href{https://fred.stlouisfed.org/}{圣路易斯联储网站}，有需要可以自行下载。我们使用官方数据集演示：
+
+\begin{tcolorbox}[title=在 Stata 中应用单变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
+qui sysuse uslifeexp, clear // 使用美国预期寿命数据（单变量的ARMA模型)
+tsset year // 设置时间变量
+summarize
+tsline le // 查看le（预期寿命）的时间序列图
+ac le // 绘制自相关图（ACF）
+pac le // 绘制偏自相关图（PACF）
+local T = 100  // 样本大小
+dis floor(12 * (`T'/100)^(1/4)) // 最大滞后阶数为12
+matrix ic = J(13, 3, 0) // 多加一行写变量名
+local var = "le"
+forvalues i = 0/12 {
+    if `i' == 0 {
+        qui reg d.`var' L.`var' if !mi(d.`var', L12.`var')
+    }
+    else {
+        qui reg d.`var' L.`var' dl`i'.`var' if !mi(d.`var', L12.`var')
+    }
+    qui estat ic
+    matrix s = r(S)
+    matrix ic[`=`i'+1', 1] = `i'
+    matrix ic[`=`i'+1', 2] = el(s, 1, 5)
+    matrix ic[`=`i'+1', 3] = el(s, 1, 6)
+}
+matrix colnames ic = lag AIC BIC
+local min_aic_row = 1
+local min_bic_row = 1
+local min_aic = ic[1,2]
+local min_bic = ic[1,3]
+forvalues i = 1/13 {
+    if ic[`i',2] < `min_aic' {
+        local min_aic = ic[`i',2]
+        local min_aic_row = `i'
+    }
+    if ic[`i',3] < `min_bic' {
+        local min_bic = ic[`i',3]
+        local min_bic_row = `i'
+    }
+}
+matrix ic_display = ic
+local aic_lag = ic[`min_aic_row',1]
+local bic_lag = ic[`min_bic_row',1]
+matlist ic_display, border(rows)
+di "AIC最优滞后阶数: " `aic_lag'
+di "BIC最优滞后阶数: " `bic_lag'
+dfuller le, lags(1) trend // ADF检验通过
+gen dle = d.le // 也可以差分试试
+dfuller dle, lags(1) trend // 通过
+\end{lstlisting}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=在 Stata 中应用单变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
+arima le, arima(1,0,1) // ARIMA建模（不差分）
+estat ic //判断模型间接性的信息准则
+tsappend, add(10)  // 添加10年
+predict le_forecast, xb
+tsline le le_forecast if tin(1980,), title("美国预期寿命预测") legend(label(1 "实际值") ///
+label(2 "预测值")) ytitle("预期寿命（岁）") xtitle("年份")
+arima dle, arima(1,0,1) // ARIMA建模（差分）
+tsappend, add(10)  // 添加10年
+predict dle_forecast, xb
+tsline dle dle_forecast if tin(1980,), title("美国预期寿命预测") ///
+legend(label(1 "实际值") label(2 "预测值")) ytitle("预期寿命（岁）") xtitle("年份")
+
+\end{lstlisting}
+\vspace{-2em}
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+111
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=在 Stata 中应用多变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
+webuse rates, clear
+describe
+summarize
+tsset date, daily
+twoway (line dow date, lcolor(blue)) (line nasdaq date, lcolor(red))
+var dow nasdaq, lags(1/2)
+vargranger
+irf create var_rates, set(rates_irf) replace
+irf graph irf, impulse(dow) response(nasdaq)
+irf graph fevd
+\end{lstlisting}
+\vspace{-2em}
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+111
+\end{Verbatim}
+\end{tcolorbox}
+
 \subsection{空间计量经济学}
 空间计量经济学处理的是截面或面板数据中，观测单元在地理空间上的相互依赖性。托布勒的地理学第一定律指出：“任何事物都与其他事物相关，但近处的事物比远处的事物更相关。”这种\textbf{空间依赖性（Spatial Dependence）}或\textbf{空间自相关（Spatial Autocorrelation）}违反了OLS观测独立的假定，会导致估计量有偏或无效。
 
