@@ -20,6 +20,6 @@
 
 ## PDF下载
 
-直接下载pdf链接（原服）：https://github.com/JingYangYuan/Social-Science-Research-Methods/raw/main/社会科学研究方法.pdf
+直接下载pdf链接（外服）：https://github.com/JingYangYuan/Social-Science-Research-Methods/raw/main/社会科学研究方法.pdf
 
 直接下载pdf链接（国服）：https://gitee.com/JingYangYuan/Social-Science-Research-Methods/raw/main/社会科学研究方法.pdf
