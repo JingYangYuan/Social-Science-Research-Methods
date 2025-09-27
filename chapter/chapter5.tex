@@ -1962,18 +1962,118 @@ BIC最优滞后阶数: 1
 webuse rates, clear
 describe
 summarize
-tsset date, daily
+tsset date, daily // 设定时间索引
+// 此处应该检验单位根，限于篇幅省略
 twoway (line dow date, lcolor(blue)) (line nasdaq date, lcolor(red))
-var dow nasdaq, lags(1/2)
+display 12*(357/100)^0.25 // 参考陈强书书p418提及的内容，确定最大滞后阶数
+varsoc dow nasdaq, maxlag(16) //根据AIC准则判断为8阶
+var dow nasdaq, lags(1/8)
 vargranger
 irf create var_rates, set(rates_irf) replace
-irf graph irf, impulse(dow) response(nasdaq)
+irf graph irf
 irf graph fevd
+*协整内容同上，var改成vec即可
+vecrank dow nasdaq, max trend(none) // 约翰森协整检验
 \end{lstlisting}
 \vspace{-2em}
 \begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
 
-111
+. display 12*(357/100)^0.25 // 参考陈强书书p418提及的内容，确定最大滞后阶数
+16.494847
+
+. varsoc dow nasdaq, maxlag(16) //根据AIC准则判断为8阶
+
+Lag-order selection criteria
+
+   Sample: 09aug1960 thru 15jul1961                        Number of obs = 341
+  +---------------------------------------------------------------------------+
+  | Lag |    LL      LR      df    p     FPE       AIC      HQIC      SBIC    |
+  |-----+---------------------------------------------------------------------|
+  …………………………………………………………………………………………………………
+  |   8 | -4064.79  23.451    4  0.000 9.5e+07*  24.0398*  24.1921   24.4219  |
+  …………………………………………………………………………………………………………
+  +---------------------------------------------------------------------------+
+   * optimal lag
+   Endogenous: dow nasdaq
+    Exogenous: _cons
+
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=在 Stata 中应用多变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+    Vector autoregression
+
+Sample: 01aug1960 thru 15jul1961                Number of obs     =        349
+Log likelihood =  -4156.557                     AIC               =   24.01465
+FPE            =   9.22e+07                     HQIC              =   24.16416
+Det(Sigma_ml)  =   7.58e+07                     SBIC              =   24.39022
+
+Equation           Parms      RMSE     R-sq      chi2     P>chi2
+----------------------------------------------------------------
+dow                  17     122.756   0.0721   27.09877   0.0404
+nasdaq               17     76.8916   0.1067   41.70088   0.0004
+----------------------------------------------------------------
+
+------------------------------------------------------------------------------
+             | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+………………………………………………………………………………………………………………
+------------------------------------------------------------------------------
+
+. vargranger
+
+   Granger causality Wald tests
+  +------------------------------------------------------------------+
+  |          Equation           Excluded |   chi2     df Prob > chi2 |
+  |--------------------------------------+---------------------------|
+  |               dow             nasdaq |  17.905     8    0.022    |
+  |               dow                ALL |  17.905     8    0.022    |
+  |--------------------------------------+---------------------------|
+  |            nasdaq                dow |  30.338     8    0.000    |
+  |            nasdaq                ALL |  30.338     8    0.000    |
+  +------------------------------------------------------------------+
+
+\end{Verbatim}
+\end{tcolorbox}
+
+\begin{figure}[htbp]
+    \centering
+    \fbox{\begin{tabular}{cc}
+        \includegraphics[width=0.45\textwidth]{image/Impulse_response.pdf} &
+        \includegraphics[width=0.45\textwidth]{image/FEVD.pdf}
+    \end{tabular}}
+    \caption{脉冲响应和残差分解}
+    \label{fig:impulse response and residual decomposition}
+\end{figure}
+
+\begin{tcolorbox}[title=在 Stata 中应用多变量时间序列分析, colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
+
+\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
+
+. vecrank dow nasdaq, max trend(none) // 约翰森协整检验
+
+Johansen tests for cointegration
+Trend: <none>                             Number of obs  = 355
+Sample: 26jul1960 thru 15jul1961          Number of lags =   2
+--------------------------------------------------------------
+                                                      Critical
+Maximum                                        Trace     value
+   rank  Params           LL  Eigenvalue   statistic        5%
+      0      4    -4397.1286           .    282.1329     12.53
+      1      7    -4323.6287     0.33905    135.1329      3.84
+      2      8    -4256.0622     0.31659
+--------------------------------------------------------------
+                                                      Critical
+Maximum                        ------Eigenvalue-----     value
+   rank  Params           LL                 Maximum        5%
+      0      4    -4397.1286           .    147.0000     11.44
+      1      7    -4323.6287     0.33905    135.1329      3.84
+      2      8    -4256.0622     0.31659
+--------------------------------------------------------------
+
 \end{Verbatim}
 \end{tcolorbox}
 
@@ -2013,108 +2113,131 @@ irf graph fevd
 
 在包含空间滞后项的模型（如SLM和SDM）中，系数 $\boldsymbol{\beta}$ 不能再解释为边际效应，因为存在反馈效应和溢出效应。需要分解为\textbf{直接效应（Direct Effect）}、\textbf{间接效应（Indirect Effect，即溢出效应）}和\textbf{总效应（Total Effect）}。
 
-\begin{tcolorbox}[title=在 Stata 中估计空间滞后模型 (SLM/SAR), colback=white, colframe=black, colbacktitle=white, coltitle=black,fonttitle=\bfseries]
-\begin{lstlisting}[xleftmargin=2em, commentstyle=\color{black}]
-需要先安装 spxtregress, spmatrix 等命令
-ssc install spxtregress, replace
-ssc install spwmatrix, replace
 
-使用Stata官方提供的意大利地区犯罪数据 (需要联网)
-use "http://www.stata-press.com/data/r15/crime_e.dta", clear
-
-创建空间权重矩阵 (基于各地区质心坐标)
-spmatrix create contiguity W, xcoord(x) ycoord(y) normalize(row)
-
-进行OLS回归，并检验残差的空间自相关性
-reg pcrim po1 polpc conv
-spatdiag, weights(W)
-
-估计空间滞后模型 (SLM/SAR)
-因变量 pcrim (人均犯罪率)
-自变量 po1 (警察人数), polpc (人均警察), conv (定罪率)
-spregress pcrim po1 polpc conv, dvarlag(W) mle
-estat effects, dvarlag(W)
-\end{lstlisting}
-\vspace{-2em}
-\begin{Verbatim}[commandchars=\\\{\},xleftmargin=2em]
-. spatdiag, weights(W)
-Moran's I test for spatial autocorrelation
-Weights matrix: W
-Number of obs = 93
-Moran's I = 0.222
-z-value = 3.655, p-value = 0.000
-H0: No spatial autocorrelation. Test indicates rejection of H0.
-
-. spregress pcrim po1 polpc conv, dvarlag(W) mle
-(output omitted for brevity...)
-Spatial autoregressive model                    Number of obs     =         93
-Maximum likelihood estimation                   Wald chi2(3)      =      36.81
-Prob > chi2       =     0.0000
-Log likelihood = -262.58514                     Pseudo R2         =     0.3629
-
-------------------------------------------------------------------------------
-       pcrim | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
--------------+----------------------------------------------------------------
-        po1 |   .1311756   .0298375     4.40   0.000     .0726955    .1896557
-      polpc |  -33.80556   15.93815    -2.12   0.034    -65.04376   -2.567362
-       conv |  -.0027157   .0004929    -5.51   0.000    -.0036817   -.0017497
-       _cons |    1.73142   .2796195     6.19   0.000     1.183377    2.279463
--------------+----------------------------------------------------------------
-W            |
-       pcrim |   .3570373   .1197825     2.98   0.003     .1222683    .5918062
-------------------------------------------------------------------------------
-LR test of spatial lag rho=0: chi2(1) = 6.66, Prob > chi2 = 0.0099
-
-. estat effects, dvarlag(W)
-Direct, indirect, and total effects
-Number of obs     =         93
-
-------------------------------------------------------------------------------
-             |            Direct   Indirect      Total
--------------+----------------------------------------------------------------
-         po1 |         .1352632   .0805364   .2157996
-      polpc |        -34.85871  -20.75487  -55.61358
-        conv |        -.0028003  -.0016673  -.0044676
-------------------------------------------------------------------------------
-\end{Verbatim}
-\end{tcolorbox}
-
-莫兰指数检验结果显著，表明存在空间自相关，使用空间模型是必要的。spregress结果显示空间滞后项（W x pcrim）的系数 $\rho$ 显著为正，证实了犯罪率在地区间存在正向溢出。estat effects的分解结果显示，增加一个地区的警察人数，不仅会降低本地区的犯罪率（直接效应），还会通过溢出效应影响邻近地区的犯罪率（间接效应）。
+* 案例省略，可参见习明明《“傻瓜”计量经济学与Stata应用（第二版）》第十四到十七章。
 
 \section{do算子与处置效应}
 
+在前面的章节中，我们主要关注的是变量之间的关联性，即条件期望 $E(Y|X)$。然而，社会科学研究的最终目标往往是探寻因果关系——如果我们主动干预（intervene）变量 $X$，变量 $Y$ 会发生怎样的变化？这对应于一个不同的概念：$E(Y|\text{do}(X=x))$。
+
+Judea Pearl 引入的 \textbf{do算子} 明确区分了“观察”（seeing）与“行动”（doing）。$E(Y|X=x)$ 描述的是，当我们观察到 $X$ 的值为 $x$ 时，对 $Y$ 的期望值是多少；而 $E(Y|\text{do}(X=x))$ 描述的是，当我们强制将 $X$ 设定为 $x$ 时（无论其自然状态如何），对 $Y$ 的期望值是多少。例如，观察到地面是湿的（$X=1$）与下雨（$Y=1$）高度相关，但如果我们人为地用水管把地面弄湿（$\text{do}(X=1)$），并不会导致下雨。
+
+do算子为我们思考因果问题提供了一个清晰的理论框架。在实证研究中，这种“干预”通常被称为\textbf{处置（Treatment）}，而我们的目标就是识别和估计其产生的\textbf{处置效应（Treatment Effect）}。
+
 \subsection{虚拟变量}
-\begin{enumerate}
-	\item 虚拟变量的定义与生成方法
-	\item 类别变量在回归中的处理
-	\item 基准组选择与虚拟变量陷阱
-	\item 交互项的引入与解释（特别是在异质效应分析中）
-\end{enumerate}
+在估计处置效应时，最常见的变量类型之一就是\textbf{虚拟变量（Dummy Variable）}，也称为指示变量（Indicator Variable）。它通常用于表示某个处置的有无、某个特征的存在与否，或某个体所属的类别。
+
+\paragraph*{虚拟变量的定义与生成}
+虚拟变量是一个取值为0或1的二元变量。例如，我们可以定义一个变量 $D_i$，如果个体 $i$ 接受了某项培训（处置组），则 $D_i=1$；如果未接受（控制组），则 $D_i=0$。
+
+对于多分类变量，如个体的受教育程度（小学、中学、大学），我们可以创建一组虚拟变量来表示。假设有 $C$ 个类别，我们通常会生成 $C-1$ 个虚拟变量。
+
+在 Stata 中，我们可以使用 \texttt{tabulate} 命令或因子变量表示法 \texttt{i.} 来快速生成虚拟变量。
+
+\paragraph*{基准组与虚拟变量陷阱}
+在上面的回归中，Stata自动将 \texttt{race} 类别中的“白人（white）”和 \texttt{industry} 类别中的“制造业（Manufacturing）”作为\textbf{基准组（Base Group）}或参照组。所有虚拟变量的系数都解释为相对于其基准组的差异。例如，\texttt{race} 类别中 \texttt{black} 的系数-1.54表示，在控制其他变量的情况下，黑人女性的平均工资比白人女性低1.54美元/小时。
+
+如果我们试图将所有类别的虚拟变量（例如，白人、黑人、其他族裔三个虚拟变量）都放入包含截距项的模型中，就会导致\textbf{完全多重共线性}，因为这三个虚拟变量之和恒等于1（即截距项）。这被称为\textbf{虚拟变量陷阱（Dummy Variable Trap）}。解决方法就是始终省略一个类别作为基准组。
+
+\paragraph*{交互项与异质性效应}
+虚拟变量的强大之处在于它可以与\textbf{其他}变量（无论是连续变量还是虚拟变量）构建\textbf{交互项（Interaction Term）}，用以探究\textbf{异质性处置效应（Heterogeneous Treatment Effects）}。
+
+例如，我们想知道教育回报率是否因种族而异。我们可以构建教育年限（\texttt{grade}）和种族虚拟变量（\texttt{i.race}）的交互项。
+
+\begin{equation}
+\text{wage} = \beta_0 + \beta_1 \text{black} + \beta_2 \text{grade} + \beta_3 (\text{black} \times \text{grade}) + \varepsilon
+\end{equation}
+在这个模型中：
+\begin{itemize}
+    \item 白人（基准组，$\text{black}=0$）的工资方程为：$E(\text{wage}|\text{black}=0) = \beta_0 + \beta_2 \text{grade}$。每增加一年教育，工资期望增加 $\beta_2$。
+    \item 黑人（$\text{black}=1$）的工资方程为：$E(\text{wage}|\text{black}=1) = (\beta_0 + \beta_1) + (\beta_2 + \beta_3) \text{grade}$。每增加一年教育，工资期望增加 $\beta_2 + \beta_3$。
+\end{itemize}
+交互项系数 $\beta_3$ 捕捉了教育回报率在黑人和白人之间的差异。如果 $\beta_3$ 显著不为零，则表明存在异质性效应。
 
 \subsection{处置效应与偏误}
-\begin{enumerate}
-	\item 处置效应的定义（平均处理效应 ATE、ATT 等）
-	\item 反事实框架（potential outcomes）
-	\item 选择偏误问题及其来源（自选择、遗漏变量等）
-	\item 识别策略的必要性与作用
-\end{enumerate}
+\paragraph*{反事实框架与处置效应}
+为了严谨地定义因果效应，我们引入\textbf{潜在结果框架（Potential Outcomes Framework）}，也称作Rubin因果模型。对每个个体 $i$，我们定义两个潜在结果：
+\begin{itemize}
+    \item $Y_i(1)$: 如果个体 $i$ 接受处置（$D_i=1$），其可能的结果。
+    \item $Y_i(0)$: 如果个体 $i$ 未接受处置（$D_i=0$），其可能的结果。
+\end{itemize}
+个体 $i$ 的因果效应（处置效应）就是 $Y_i(1) - Y_i(0)$。然而，\textbf{因果推断的根本问题}在于，在同一时间点，我们只能观测到其中一个潜在结果。我们观测到的实际结果 $Y_i$ 可以表示为：
+\begin{equation}
+Y_i = D_i Y_i(1) + (1-D_i) Y_i(0)
+\end{equation}
+由于无法观测到个体的因果效应，我们转而关注总体的平均效应：
+\begin{itemize}
+    \item \textbf{平均处置效应 (Average Treatment Effect, ATE)}: $\text{ATE} = E[Y_i(1) - Y_i(0)]$
+    \item \textbf{处置组的平均处置效应 (Average Treatment Effect on the Treated, ATT)}: $\text{ATT} = E[Y_i(1) - Y_i(0) | D_i=1]$
+\end{itemize}
+
+\paragraph*{选择性偏误}
+一个很自然的想法是，直接比较处置组和控制组的平均结果差异来估计处置效应：
+\begin{equation}
+\Delta = E[Y_i | D_i=1] - E[Y_i | D_i=0]
+\end{equation}
+然而，这个简单的差异通常不等于ATE或ATT。我们可以将其分解：
+\begin{align}
+\Delta &= E[Y_i(1) | D_i=1] - E[Y_i(0) | D_i=0] \\
+&= E[Y_i(1) | D_i=1] - E[Y_i(0) | D_i=1] + E[Y_i(0) | D_i=1] - E[Y_i(0) | D_i=0] \\
+&= \text{ATT} + \underbrace{E[Y_i(0) | D_i=1] - E[Y_i(0) | D_i=0]}_{\text{选择性偏误 (Selection Bias)}}
+\end{align}
+\textbf{选择性偏误}来源于：即使处置组没有接受处置，他们的潜在结果 $Y_i(0)$ 也可能系统性地不同于控制组。例如，参加职业培训的人（处置组）可能本身就比不参加的人（控制组）更有上进心，因此即使不参加培训，他们的平均工资也可能更高。
+
+随机对照实验（RCT）通过随机分配处置，确保了 $E[Y_i(0) | D_i=1] = E[Y_i(0) | D_i=0]$，从而消除了选择性偏误。但在无法进行实验的观测性研究中，我们就必须依赖各种\textbf{识别策略}来处理选择性偏误，这也是计量经济学中因果推断方法的核心任务。
 
 \section{两种策略}
 
+当随机实验不可行时，我们如何从观测数据中识别因果效应？核心在于找到一种方法来控制或消除选择性偏误。本节介绍两种基于“可观测特征”进行控制的策略：匹配法和回归法。这两种方法都依赖一个核心假设，即“条件独立性假设”（Conditional Independence Assumption, CIA），也称为“可忽略性”（Ignorability）或“基于可观测变量的选择”（Selection on Observables）。该假设认为，一旦我们控制了一组足够丰富的可观测变量 $\mathbf{X}$，处置的分配就可以被视为是随机的。
+
+\begin{equation}
+(Y_i(1), Y_i(0)) \perp D_i | \mathbf{X}_i
+\end{equation}
+
 \subsection{匹配法}
-\begin{enumerate}
-	\item 匹配法的基本思想与目的
-	\item 匹配方法种类（最近邻匹配、半径匹配、核匹配等）
-	\item 倾向得分（propensity score）的估计与匹配
-	\item 匹配后平衡性检验
-	\item 匹配法的优点与局限性
-\end{enumerate}
+\paragraph*{基本思想}
+匹配法的思想非常直观：为了估计处置对个体 $i$（假设其在处置组）的影响，我们在控制组中寻找一个或多个与个体 $i$ 在可观测特征 $\mathbf{X}$ 上“尽可能相似”的个体作为其反事实的代理。通过比较处置组个体与其匹配的控制组个体的平均结果差异，我们就可以得到一个消除了选择性偏误的处置效应估计。本质上，匹配是在观测数据中模拟一个“准实验”。
+
+\paragraph*{倾向得分匹配}
+当控制变量 $\mathbf{X}$ 的维度很高时，要找到特征完全相同的个体几乎是不可能的（这被称为\textbf{维度灾难 Curse of Dimensionality}）。Rosenbaum 和 Rubin (1983) 证明，如果条件独立性假设成立，那么我们只需要在一个一维变量上进行匹配就足够了，这个变量就是\textbf{倾向得分（Propensity Score）}。
+\begin{equation}
+p(\mathbf{X}_i) = P(D_i=1|\mathbf{X}_i)
+\end{equation}
+倾向得分是在给定一系列可观测特征 $\mathbf{X}$ 的条件下，个体接受处置的概率。我们可以通过Logit或Probit模型来估计每个个体的倾向得分。
+
+之后，我们就可以根据倾向得分进行匹配。常见的匹配算法包括：
+\begin{itemize}
+    \item \textbf{最近邻匹配（Nearest Neighbor Matching）}：为每个处置组个体，在控制组中寻找倾向得分最接近的一个或多个个体。
+    \item \textbf{半径匹配（Radius/Caliper Matching）}：为每个处置组个体，匹配上所有倾向得分落在其一个特定半径（Caliper）范围内的控制组个体。
+    \item \textbf{核匹配（Kernel Matching）}：为每个处置组个体，用其附近所有控制组个体的加权平均来构建反事实，权重由其与处置组个体的倾向得分距离决定。
+\end{itemize}
+
+\paragraph*{平衡性检验与共同支撑}
+匹配的一个关键前提是\textbf{共同支撑（Common Support）}，即对于任何倾向得分的取值，处置组和控制组中都存在个体。如果某些特征的个体只存在于处置组（或控制组），那我们就无法为他们找到合适的匹配。
+
+匹配完成后，必须进行\textbf{平衡性检验（Balance Test）}，检查匹配后处置组和控制组的 $\mathbf{X}$ 变量的分布是否变得相似（即均值无显著差异）。如果匹配后变量仍然不平衡，则说明倾向得分模型可能设定有误，需要重新设定模型再次匹配。
 
 \subsection{回归法}
-\begin{enumerate}
-	\item 回归模型在估计处置效应中的作用
-	\item 包含控制变量的线性回归模型
-	\item 交互项与异质性处置效应
-	\item 回归调整与回归偏误
-	\item 与匹配法的比较——异同
-\end{enumerate}
+\paragraph*{回归模型的作用}
+多元回归是另一种控制可观测变量 $\mathbf{X}$ 以估计处置效应的常用方法。其基本思想是，通过将 $\mathbf{X}$ 作为控制变量放入回归模型，我们可以“分离出”处置变量 $D$ 对结果变量 $Y$ 的净影响。
+\begin{equation}
+Y_i = \beta_0 + \tau D_i + \boldsymbol{\beta}' \mathbf{X}_i + \varepsilon_i
+\end{equation}
+在这个模型中，如果条件独立性假设成立，并且我们对函数形式（线性）的设定是正确的，那么系数 $\tau$ 就是对平均处置效应（ATE）的一个一致估计。它衡量的是，在保持 $\mathbf{X}$ 不变的情况下，接受处置（$D=1$）与不接受处置（$D=0$）的个体之间 $Y$ 的平均差异。
+
+\paragraph*{交互项与异质性效应}
+与虚拟变量部分讨论的类似，回归法可以非常方便地通过引入处置变量与协变量的交互项来检验和估计异质性处置效应。
+\begin{equation}
+Y_i = \beta_0 + \tau D_i + \beta_1 X_{1i} + \gamma (D_i \times X_{1i}) + \dots + \varepsilon_i
+\end{equation}
+此时，对于 $X_1$ 取值不同的个体，处置效应是不同的。处置效应变为 $\tau + \gamma X_{1i}$。
+
+\paragraph*{与匹配法的比较}
+匹配法和回归法都是基于“可观测变量的选择”这一核心假设，但它们实现控制的方式有所不同。
+\begin{itemize}
+    \item \textbf{函数形式}：回归法对 $Y$ 与 $D, \mathbf{X}$ 之间的关系施加了特定的函数形式（通常是线性的）。如果这种形式设定错误，估计就会产生偏误。匹配法是非参数的，不对函数形式做过多假设，因此更为稳健。
+    \item \textbf{共同支撑}：匹配法强制要求在共同支撑域内进行比较，对于不在共同支撑域内的观测值会将其丢弃，这使得我们对估计结果的适用范围有更清醒的认识。回归法虽然在理论上也需要共同支撑，但它会利用函数形式进行外推，即使在数据稀疏的区域也会给出估计，这可能掩盖了共同支撑问题。
+    \item \textbf{效率}：如果线性模型是正确的，回归法的估计通常比匹配法更有效率（即标准误更小）。
+\end{itemize}
+
+在实践中，这两种方法常常被结合使用，例如在匹配后的样本上再进行回归分析，以期获得既稳健又有效率的估计结果。这种方法被称为回归调整（Regression Adjustment）或双重稳健估计（Doubly Robust Estimation）。
